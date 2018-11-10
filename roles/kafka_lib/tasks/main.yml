@@ -1,0 +1,13 @@
+- name: create topic
+  kafka_lib:
+    resource: "topic"
+    api_version: "1.0.1"
+    name: "test1"
+    partitions: 2
+    replica_factor: 1
+    options:
+      retention.ms: 574930
+      flush.ms: 12345
+    state: "present"
+    zookeeper: "localhost:2181"
+    bootstrap_servers: "localhost:9092"

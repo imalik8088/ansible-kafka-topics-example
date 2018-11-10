@@ -1,0 +1,165 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+lint:
+  name: yamllint
+platforms:
+  # 0.11.0.2
+  - name: zookeeper-01102
+    image: zookeeper:3.4
+    command: "bin/zkServer.sh start-foreground"
+    published_ports:
+      - "2181"
+    networks:
+      - name: molecule
+        aliases:
+          - zookeeper-01102
+  - name: kafka1-01102
+    image: wurstmeister/kafka:2.11-0.11.0.2
+    command: "start-kafka.sh"
+    env:
+      HOSTNAME_COMMAND: "hostname -i | cut -d' ' -f1"
+      KAFKA_DELETE_TOPIC_ENABLE: "true"
+      KAFKA_ADVERTISED_PORT: "9092"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-01102:2181
+    published_ports:
+      - "9092"
+    networks:
+      - name: molecule
+        links:
+          - zookeeper-01102
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  - name: kafka2-01102
+    image: wurstmeister/kafka:2.11-0.11.0.2
+    command: "start-kafka.sh"
+    env:
+      HOSTNAME_COMMAND: "hostname -i | cut -d' ' -f1"
+      KAFKA_DELETE_TOPIC_ENABLE: "true"
+      KAFKA_ADVERTISED_PORT: "9092"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-01102:2181
+    published_ports:
+      - "9092"
+    networks:
+      - name: molecule
+        links:
+          - zookeeper-01102
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  # 1.0.1
+  - name: zookeeper-101
+    image: zookeeper:3.4
+    command: "bin/zkServer.sh start-foreground"
+    published_ports:
+      - "2181"
+    networks:
+      - name: molecule
+        aliases:
+          - zookeeper-101
+  - name: kafka1-101
+    image: wurstmeister/kafka:2.11-1.0.1
+    command: "start-kafka.sh"
+    env:
+      HOSTNAME_COMMAND: "hostname -i | cut -d' ' -f1"
+      KAFKA_DELETE_TOPIC_ENABLE: "true"
+      KAFKA_ADVERTISED_PORT: "9092"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-101:2181
+    published_ports:
+      - "9092"
+    networks:
+      - name: molecule
+        links:
+          - zookeeper-101
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  - name: kafka2-101
+    image: wurstmeister/kafka:2.11-1.0.1
+    command: "start-kafka.sh"
+    env:
+      HOSTNAME_COMMAND: "hostname -i | cut -d' ' -f1"
+      KAFKA_DELETE_TOPIC_ENABLE: "true"
+      KAFKA_ADVERTISED_PORT: "9092"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-101:2181
+    published_ports:
+      - "9092"
+    networks:
+      - name: molecule
+        links:
+          - zookeeper-101
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  # 1.1.1
+  - name: zookeeper-111
+    image: zookeeper:3.4
+    command: "bin/zkServer.sh start-foreground"
+    published_ports:
+      - "2181"
+    networks:
+      - name: molecule
+        aliases:
+          - zookeeper-111
+  - name: kafka1-111
+    image: wurstmeister/kafka:2.11-1.1.1
+    command: "start-kafka.sh"
+    env:
+      HOSTNAME_COMMAND: "hostname -i | cut -d' ' -f1"
+      KAFKA_DELETE_TOPIC_ENABLE: "true"
+      KAFKA_ADVERTISED_PORT: "9092"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-111:2181
+    published_ports:
+      - "9092"
+    networks:
+      - name: molecule
+        links:
+          - zookeeper-111
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  - name: kafka2-111
+    image: wurstmeister/kafka:2.11-1.1.1
+    command: "start-kafka.sh"
+    env:
+      HOSTNAME_COMMAND: "hostname -i | cut -d' ' -f1"
+      KAFKA_DELETE_TOPIC_ENABLE: "true"
+      KAFKA_ADVERTISED_PORT: "9092"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-111:2181
+    published_ports:
+      - "9092"
+    networks:
+      - name: molecule
+        links:
+          - zookeeper-111
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+provisioner:
+  name: ansible
+  lint:
+    name: ansible-lint
+  inventory:
+    group_vars:
+      all:
+        ansible_kafka_supported_versions:
+          - protocol_version: "0.11.0"
+            instance_suffix: "01102"
+          - protocol_version: "1.0.1"
+            instance_suffix: "101"
+          - protocol_version: "1.1.1"
+            instance_suffix: "111"
+scenario:
+  name: default
+  test_sequence:
+    - lint
+    - destroy
+    - dependency
+    - syntax
+    - create
+    - prepare
+    - converge
+    - side_effect
+    - verify
+    - destroy
+verifier:
+  name: testinfra
+  lint:
+    name: flake8

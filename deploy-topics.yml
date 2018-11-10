@@ -1,0 +1,10 @@
+---
+- hosts: 127.0.0.1
+  connection: local
+  vars:
+    ansible_python_interpreter: /usr/local/bin/python
+  roles:
+    - {role: kafka_lib, install_python_requirements: yes}
+    # - {role: topics, tags: [topics]}
+  gather_facts: no
+

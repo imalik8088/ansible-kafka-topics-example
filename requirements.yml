@@ -1,0 +1,3 @@
+- src: https://github.com/StephenSorriaux/ansible-kafka-admin
+  name: kafka_lib
+  version: origin/fix/missing-response-for-createpartitions
